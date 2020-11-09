@@ -1,0 +1,26 @@
+﻿@model HomeViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+@for (int i = 0; i < Model.Companies.Length; i++)
+{
+    string reference = "Company/" + Model.Companies[i].Ref;
+    <a class="d-flex btn align-items-center mb-3 p-3" href="@reference">
+        <img width="300px" src="@Model.Companies[i].Image"/>
+        <div class="ml-3 text-left w-100">
+            <h3>Name: @Model.Companies[i].Name</h3>
+            <p>Rating: @Model.Companies[i].Rating</p>
+            <p class="mb-1">Full sum: @Model.Companies[i].Sum$</p>
+            @{ double precent = double.Parse(Model.Companies[i].CollectedSum) / double.Parse(Model.Companies[i].Sum) * 100;}
+            <div class="progress mb-3" style="height: 20px">
+                <div class="progress-bar progress-bar-striped progress-bar-animated text-body font-weight-bold bg-warning" role="progressbar" aria-valuenow="@precent" aria-valuemin="0" aria-valuemax="100" style="width: @precent%">@Model.Companies[i].CollectedSum$</div>
+            </div>
+            @{int days = (Model.Companies[i].EndDate - DateTime.Now).Days + 1;}
+            <p>End date: @Model.Companies[i].EndDate.ToString("MM/dd/yyyy"); Days to end: @days</p>
+
+        </div>
+
+</a>
+}

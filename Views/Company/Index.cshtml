@@ -1,0 +1,187 @@
+﻿@model ShowCompanyViewModel
+@{
+    ViewBag.Title = "Home Page";
+}
+<script>
+    let userName = "@User.Identity.Name";
+    let company = "@Model.Id";
+    let text = "@Model.Description".replace(/&#xD;&#xA;/g, "\n");
+</script>
+<div class="d-flex p-3 border align-items-center">
+    <img src="@Model.Image" width="350px" />
+    <div class="ml-3">
+        <h1>@Model.Name</h1>
+        <h3 class="text-muted">Theme: @Model.Theme</h3>
+        <h5 class="text-muted">Creator: @Model.User</h5>
+        <h5 class="text-muted">Rating: @Model.marks</h5>
+        <form asp-action="SetMark" asp-controller="Company" class="d-flex align-items-center" method="post">
+            <label class="m-0 mr-3">Estimate: </label>
+            @for (int i = 0; i < Model.mark.Length; i++)
+            {
+                string buf = "check" + i;
+                if (Model.mark[i])
+                {
+                    <label for="@buf"><img width="30px" class="star-img" src="~/img/star_t.png" /></label>
+                }
+                else
+                {
+                    <label for="@buf"><img width="30px" class="star-img" src="~/img/star_f.png" /></label>
+                }
+                <input id="@buf" asp-for="@Model.mark[i]" class="mark-check d-none mr-1" />
+            }
+            <input type="hidden" asp-for="@Model.Id" />
+            <button class="btn btn-default btn-primary p-1 ml-3" type="submit">Send</button>
+        </form>
+    </div>
+</div>
+<div class="d-flex p-3 border mt-3">
+    @{ bool ourCompany = User.Identity.Name == Model.User; }
+    <a class="btn btn-default btn-primary mr-3" href="#" id="info">Info</a>
+    <a class="btn btn-default btn-primary mr-3" href="#" id="news">News</a>
+    @if (ourCompany)
+    {
+        <a class="btn btn-default btn-primary mr-3" href="#" id="add-news">Add news</a>
+    }
+    <a class="btn btn-default btn-primary mr-3" href="#" id="bonuses">Bonuses</a>
+    @if (ourCompany)
+    {
+        <a class="btn btn-default btn-primary mr-3" href="#" id="add-bonus">Add bonus</a>
+        <script>
+            document.getElementById("add-news").addEventListener("click", function () { SwitchSection(4); });
+            document.getElementById("add-bonus").addEventListener("click", function () { SwitchSection(5); });
+        </script>
+    }
+    <a class="btn btn-default btn-primary mr-3" href="#" id="comments">Comments</a>
+</div>
+<div class="main-section p-3 border mt-3 clearfix">
+    <div class="d-block mb-3">
+        <iframe id="embedded_video" style="display: block; min-width: 320px; min-height: 220px; width: 75%; margin: 0 auto" src="@Model.Video" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <p style="white-space: pre-line" id="markdown-text"></p>
+</div>
+<div class="main-section p-3 border mt-3 clearfix d-none">
+    @for (int i = Model.news.Length - 1; i >= 0; i--)
+    {
+        <div class="p-3 border rounded dark mb-3">
+            @if (ourCompany)
+            {
+                <form asp-controller="News" asp-action="DeleteNews" method="post">
+                    <input asp-for="deleteNewsID" type="hidden" value="@Model.news[i].id">
+                    <input type="hidden" asp-for="Id" />
+                    <button class="btn btn-lg btn-primary mt-3 mb-3" type="submit">Delete</button>
+                </form>
+            }
+            <div class="d-flex align-items-center">
+                <img class="mr-3" src="@Model.news[i].Image" style="max-width: 300px; max-height: 150px;" />
+                <h3>@Model.news[i].Name</h3>
+            </div>
+            <p style="white-space: pre-line" class="news-text">@Model.news[i].Description</p>
+        </div>
+    }
+</div>
+<div class="main-section p-3 border mt-3 clearfix d-none">
+    @for (int i = Model.bonuses.Length - 1; i >= 0; i--)
+    {
+        <div class="p-3 border rounded dark mb-3">
+            @if (ourCompany)
+            {
+                <form asp-controller="Bonuses" asp-action="DeleteBonus" method="post">
+                    <input asp-for="deleteBonusID" type="hidden" value="@Model.bonuses[i].id">
+                    <input type="hidden" asp-for="Id" />
+                    <button class="btn btn-lg btn-primary mt-3 mb-3" type="submit">Delete</button>
+                </form>
+            }
+            <h3>Name: @Model.bonuses[i].Name Sum: @Model.bonuses[i].Sum</h3>
+            <p style="white-space: pre-line">@Model.bonuses[i].Description</p>
+            <form asp-controller="Bonuses" asp-action="Pay" method="post">
+                <input type="hidden" asp-for="payID" value="@Model.bonuses[i].id" />
+                <input type="hidden" asp-for="Id" />
+                <button class="btn btn-lg btn-primary mt-3 mb-3" type="submit">Pay</button>
+            </form>
+        </div>
+    }
+</div>
+<div class="main-section p-3 border mt-3 clearfix d-none">
+    <div>
+        <textarea rows=3 id="comment" class="form-control mb-3" placeholder="Comment text"></textarea>
+        <button class="btn btn-default btn-primary mb-3" id="sendBtn">Send</button>
+    </div>
+    <div id="comments-list">
+        @for (int i = 0; i < Model.comments.Length; i++)
+        {
+            <div class="border rounded p-3 mb-3">
+                <h2 class="author">@Model.comments[i].Author</h2>
+                <p class="text-context">@Model.comments[i].Text</p>
+                <span>Rating: </span>
+                <span class="rating">@Model.comments[i].Rating</span>
+                <a class="like ml-3"><img src="~/img/like.png" width="18" /></a>
+                <a class="dislike ml-3"><img src="~/img/dislike.png" width="18" /></a>
+                <input type="hidden" class="comment-id" value="@Model.comments[i].id" />
+            </div>
+        }
+    </div>
+</div>
+
+<div class="main-section p-3 border mt-3 clearfix d-none">
+    <form asp-controller="News" asp-action="AddNews" method="post">
+        <label asp-for="addNews.Name" class="text-muted mt-3"></label>
+        <input asp-for="addNews.Name" class="form-control col-md-6" placeholder="Name">
+        <span asp-validation-for="addNews.Name" class="d-block"></span>
+
+        <label asp-for="addNews.Description" class="text-muted mt-3"></label>
+        <textarea rows=15 asp-for="addNews.Description" class="form-control" placeholder="Description"></textarea>
+        <span asp-validation-for="addNews.Description" class="d-block"></span>
+
+        <a class="btn btn-default btn-primary mb-3 mt-3" onclick="document.querySelector('.image-loader').click()" href="#">Load image</a>
+        <input class="image-loader" style="visibility: collapse; width: 0px;" type="file" onchange="upload(this.files[0])">
+        <img class="company-image d-block" style="max-width: 300px; max-height: 150px;" src="@Model.addNews.Image" />
+
+        <input type="hidden" asp-for="Id" />
+        <input id="company-image" asp-for="addNews.Image" hidden />
+
+        <button class="btn btn-lg btn-primary btn-block mt-3 mb-3" type="submit">Add</button>
+    </form>
+</div>
+<div class="main-section p-3 border mt-3 clearfix d-none">
+    <form asp-controller="Bonuses" asp-action="AddBonus" method="post">
+        <label asp-for="addBonus.Name" class="text-muted mt-3"></label>
+        <input asp-for="addBonus.Name" class="form-control col-md-6" placeholder="Name">
+        <span asp-validation-for="addBonus.Name" class="d-block"></span>
+
+        <label asp-for="addBonus.Description" class="text-muted mt-3"></label>
+        <textarea rows=15 asp-for="addBonus.Description" class="form-control" placeholder="Description"></textarea>
+        <span asp-validation-for="addBonus.Description" class="d-block"></span>
+
+        <label asp-for="addBonus.Sum" class="text-muted mt-3"></label>
+        <input type="number" asp-for="addBonus.Sum" class="form-control col-md-6" placeholder="Name">
+        <span asp-validation-for="addBonus.Sum" class="d-block"></span>
+
+        <input type="hidden" asp-for="Id" />
+
+        <button class="btn btn-lg btn-primary btn-block mt-3 mb-3" type="submit">Add</button>
+    </form>
+</div>
+<div class="main-section p-3 border mt-3 clearfix d-none">
+    <form asp-controller="Bonuses" asp-action="AddBonus" method="post">
+        <label asp-for="addBonus.Name" class="text-muted mt-3"></label>
+        <input asp-for="addBonus.Name" class="form-control col-md-6" placeholder="Name">
+        <span asp-validation-for="addBonus.Name" class="d-block"></span>
+
+        <label asp-for="addBonus.Description" class="text-muted mt-3"></label>
+        <textarea rows=15 asp-for="addBonus.Description" class="form-control" placeholder="Description"></textarea>
+        <span asp-validation-for="addBonus.Description" class="d-block"></span>
+
+        <label asp-for="addBonus.Sum" class="text-muted mt-3"></label>
+        <input type="number" asp-for="addBonus.Sum" class="form-control col-md-6" placeholder="Name">
+        <span asp-validation-for="addBonus.Sum" class="d-block"></span>
+
+        <input type="hidden" asp-for="Id" />
+
+        <button class="btn btn-lg btn-primary btn-block mt-3 mb-3" type="submit">Add</button>
+    </form>
+</div>
+
+<script src="~/js/markdown.js"></script>
+<script src="~/js/signalr.min.js"></script>
+<script src="~/js/CommentHub.js" defer></script>
+<script src="~/js/ShowCompany.js" defer></script>

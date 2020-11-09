@@ -1,0 +1,28 @@
+﻿.dark {
+    background-color: dimgrey !important;
+    color: white !important;
+    border-color: black !important;
+}
+.dark_2 {
+    background-color: grey !important;
+    color: white !important;
+    border-color: black !important;
+}
+html {
+    background-color: grey !important;
+}
+
+.text-muted {
+    color: aliceblue !important;
+}
+
+.btn{
+    background-color: dimgrey !important;
+    color: white !important;
+    border-color: black !important;
+}
+
+.form-control {
+    background-color: darkgray !important;
+    color: white;
+}

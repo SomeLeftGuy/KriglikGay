@@ -1,0 +1,27 @@
+﻿@model RegisterViewModel
+@{
+    ViewBag.Title = "Sign up";
+}
+
+<form class="form-signin col-md-6 m-auto" method="post" asp-controller="Account" asp-action="Register">
+    <h1 class="h3 mb-3 font-weight-normal">Please sign up</h1>
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Email" class="text-muted mt-3"></label>
+    <input asp-for="Email" class="form-control" placeholder="Email address">
+    <span asp-validation-for="Email" class="d-block"></span>
+
+    <label asp-for="Name" class="text-muted mt-3"></label>
+    <input asp-for="Name" class="form-control" placeholder="User name">
+    <span asp-validation-for="Name" class="d-block"></span>
+
+    <label asp-for="Password" class="text-muted mt-3"></label>
+    <input asp-for="Password" class="form-control" placeholder="Password">
+    <span asp-validation-for="Password" class="d-block"></span>
+
+    <label asp-for="PasswordConfirm" class="text-muted mt-3"></label>
+    <input asp-for="PasswordConfirm" class="form-control" placeholder="Password confirm">
+    <span asp-validation-for="PasswordConfirm" class="d-block"></span>
+
+    <button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Sign up</button>
+</form>

@@ -1,0 +1,118 @@
+﻿@model CompanyViewModel
+
+@{
+    ViewBag.Title = "Edit company";
+}
+
+
+<div class="validation" asp-validation-summary="ModelOnly"></div>
+<form name="EditCompany" class="" method="post" asp-controller="Company" asp-action="EditCompany">
+    <h1 class="h3 mb-3 font-weight-normal">Edit company: @Model.CompanyName</h1>
+
+    <label asp-for="CompanyName" class="text-muted mt-3"></label>
+    <input asp-for="CompanyName" class="form-control col-md-6" placeholder="Name">
+    <span asp-validation-for="CompanyName" class="d-block"></span>
+
+    <label asp-for="CompanyInfo" class="text-muted mt-3"></label>
+    <textarea rows=15 asp-for="CompanyInfo" class="form-control" placeholder="Description"></textarea>
+    <span asp-validation-for="CompanyInfo" class="d-block"></span>
+
+    <label asp-for="Sum" class="text-muted mt-3"></label>
+    <input type="number" asp-for="Sum" class="form-control col-md-6" placeholder="Sum">
+    <span asp-validation-for="Sum" class="d-block"></span>
+
+    <label asp-for="EndDate" class="text-muted mt-3"></label>
+    <input type="date" asp-for="EndDate" class="form-control col-md-6" placeholder="End date">
+    <span asp-validation-for="EndDate" class="d-block"></span>
+
+    <label asp-for="Tags" class="text-muted mt-3"></label>
+    <input asp-for="Tags" class="form-control col-md-6" placeholder="Tags">
+    <span asp-validation-for="Tags" class="d-block"></span>
+
+    <label asp-for="Theme" class="text-muted mt-3"></label>
+    <select class="form-control field-input mb-5 col-md-6" asp-for="Theme">
+        <option value="">Select Industries...</option>
+        @for (int i = 0; i < Model.Themes.Length; i++)
+        {
+            <option value="@Model.Themes[i]">@Model.Themes[i]</option>
+        }
+    </select>
+
+    <input value="" placeholder="Youtube URL" name="company_video" class="form-control mb-3 col-md-6" />
+    <a class="btn btn-default btn-primary mb-3" href="#" id="company_video_apply">Add</a>
+    <div class="company-video-preview" id="js-video-preview">
+        <iframe id="embedded_video" width="100%" height="200" src="@Model.CompanyLinkVideo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <a class="btn btn-default btn-primary mb-3" onclick="document.querySelector('.image-loader').click()" href="#">Load image</a>
+    <input class="image-loader" style="visibility: collapse; width: 0px;" type="file" onchange="upload(this.files[0])">
+    <img class="company-image d-block" style="max-width: 300px; max-height: 150px;" src="@Model.CompanyLinkImage" />
+    
+    <input asp-for="id" hidden />
+    <input id="company-video" asp-for="CompanyLinkVideo" hidden />
+    <input id="company-image" asp-for="CompanyLinkImage" hidden />
+
+    <button class="btn btn-lg btn-primary btn-block mt-3 mb-3" type="submit">Save</button>
+</form>
+
+
+<script>
+    let CompanyVideoApply = document.getElementById("company_video_apply");
+    CompanyVideoApply.addEventListener("click", function (e) {
+        e.preventDefault();
+        let video = document.getElementById("embedded_video");
+        let reg = /v=\w{11}/;
+        let buf = "https://www.youtube.com/embed/" + reg.exec(EditCompany.company_video.value)[0].slice(2);
+
+        video.src = buf;
+        document.getElementById("company-video").setAttribute('value', buf);
+    });
+
+    let inputTag = document.getElementById("tag");
+    function GetTags() {
+        let elements = document.querySelectorAll('ul > li');
+        elements.forEach(item => {
+            item.remove();
+        });
+        let arr = inputTag.value.split(' ');
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i].trim() !== '') {
+                let CompanyKeywordsList = document.getElementById("company-keywords-list");
+                let li = document.createElement('LI');
+                li.innerHTML = arr[i];
+                CompanyKeywordsList.appendChild(li);
+            }
+        }
+    }
+
+    window.ondragover = function (e) { e.preventDefault() }
+    window.ondrop = function (e) { e.preventDefault(); upload(e.dataTransfer.files[0]); }
+    function upload(file) {
+
+        if (!file || !file.type.match(/image.*/)) return;
+
+        let spanUploading = document.createElement('div');
+        spanUploading.classList.add("fixed-bottom");
+        spanUploading.innerHTML = "Uploading";
+        document.body.appendChild(spanUploading);
+
+
+
+        var fd = new FormData();
+        fd.append("image", file);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://api.imgur.com/3/image.json");
+        xhr.onload = function () {
+            let linkImage = JSON.parse(xhr.responseText).data.link;
+            document.querySelector('.company-image').src = linkImage;
+
+            document.getElementById("company-image").setAttribute('value', linkImage);
+
+            spanUploading.innerHTML = "uploaded";
+        }
+
+        xhr.setRequestHeader('Authorization', 'Client-ID 28aaa2e823b03b1');
+
+        xhr.send(fd);
+    }
+</script>

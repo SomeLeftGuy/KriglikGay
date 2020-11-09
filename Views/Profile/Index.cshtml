@@ -1,0 +1,155 @@
+﻿@model ProfileViewModel
+@{
+    ViewBag.Title = "Profile";
+}
+<div class="mb-3">
+    <h2 id="static" class="d-inline-block mb-0 align-middle">Account name: @User.Identity.Name</h2>
+    <form id="non-static" class="d-none" asp-controller="Profile" asp-action="EditName" method="post">
+        <input type="text" class="form-control" name="userName" placeholder="New user name" />
+        <input type="submit" class="btn btn-default btn-primary d-inline-block mt-3 mb-3" value="Edit" />
+    </form>
+    <a class="ml-3 btn btn-default btn-primary" href="#" id="edit">Edit</a>
+    <a class="ml-3 btn btn-default btn-primary" asp-controller="Profile" asp-action="SwitchColor">Switch site color</a>
+</div>
+@if (Model.bonuses.Length != 0) { 
+    <div class="d-flex flex-wrap">
+        <h2 class="w-100">Bonuses: </h2>
+        @for (int i = 0; i < Model.bonuses.Length; i++)
+        {
+            <div class="p-3 border rounded mb-3 mr-3 col-5">
+                <h3>@Model.bonuses[i].Name</h3>
+                <p>@Model.bonuses[i].Description</p>
+                <form asp-controller="Profile" asp-action="RemoveBonus" method="post">
+                    <input type="hidden" asp-for="removeBonusID" value="@Model.bonuses[i].id" />
+                    <button type="submit" class="btn btn-default btn-primary">Remove</button>
+                </form>
+            </div>
+        }
+    </div>
+}
+<form asp-controller="Company" method="get">
+    <div class="border rounded p-3">
+        @{
+            if (Model.accessType)
+            {
+                <a class="btn btn-default btn-primary" asp-controller="Profile" asp-action="UsersTable">Users table</a>
+            }
+            <button type="submit" class="btn btn-default btn-primary" asp-controller="Company" asp-action="AddCompany">Add company</button>
+            <button type="submit" class="btn btn-default btn-primary" asp-controller="Company" asp-action="DeleteCompany">Delete</button>
+            <button type="submit" class="btn btn-default btn-primary" asp-controller="Company" asp-action="EditCompany">Edit</button>
+        }
+    </div>
+    <div class="table-responsive">
+        <table class="tablesorter table table-striped table-sm" id="table">
+            <thead>
+                <tr>
+                    <th>
+                        <input id="checkbox" type="checkbox" />
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Create date
+                    </th>
+                    <th>
+                        End date
+                    </th>
+                    <th>
+                        Sum
+                    </th>
+                    <th>
+                        Colected sum
+                    </th>
+                    <th>
+                        Link
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.companies.Length > 0)
+                {
+                    @for (int i = 0; i < Model.companies.Length; i++)
+                    {
+                        <tr>
+                            <td class="align-middle">
+                                <input type="checkbox" asp-for="@Model.companies[i].selected">
+                            </td>
+                            <td class="align-middle">
+                                @Model.companies[i].name
+                            </td>
+                            <td class="align-middle">
+                                @Model.companies[i].createDate
+                            </td>
+                            <td class="align-middle">
+                                @Model.companies[i].endDate
+                            </td>
+                            <td class="align-middle">
+                                @Model.companies[i].sum
+                            </td>
+                            <td class="align-middle">
+                                @Model.companies[i].colectedSum
+                            </td>
+                            <td class="align-middle">
+                                <a class="btn btn-default btn-primary p-1 m-1" href="Company/@Model.companies[i].id">Link</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <input type="hidden" asp-for="@Model.companies[i].id" />
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                            Null
+                        </td>
+                        <td>
+                            Null
+                        </td>
+                        <td>
+                            Null
+                        </td>
+                        <td>
+                            Null
+                        </td>
+                        <td>
+                            Null
+                        </td>
+                        <td>
+                            Null
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+<script>
+    let edit = document.getElementById("edit");
+            let static = document.getElementById("static");
+            let non_static = document.getElementById("non-static");
+            edit.addEventListener("click", function () {
+                if (!static.classList.contains("d-none")) {
+                    static.classList.remove("d-inline-block");
+                    static.classList.add("d-none");
+                    non_static.classList.remove("d-none");
+                    edit.classList.add("d-none");
+                }
+            });
+</script>
+<script>    
+    $('#checkbox').click(function () {
+        if ($(this).is(':checked')) {
+            $('input:checkbox').prop('checked', true);
+        } else {
+            $('input:checkbox').prop('checked', false);
+        }
+    });
+    $(function () {
+        $("#table").tablesorter();
+    });
+</script>

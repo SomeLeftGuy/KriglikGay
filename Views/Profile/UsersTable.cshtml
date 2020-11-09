@@ -1,0 +1,93 @@
+﻿@model UsersViewModel
+@{
+    ViewBag.Title = "Admin table";
+}
+
+<form method="post" asp-controller="Profile">
+    <h4 class="text-info pt-5">List of users:</h4>
+    <div class="table-responsive">
+        <table class="tablesorter table table-striped table-sm" id="table">
+            <thead>
+                <tr>
+                    <th>
+                        <input id="checkbox" type="checkbox" />
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Type
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(int i = 0; i < Model.UsersList.Length; i++)
+                {
+                    <tr>
+                        <td>
+                            <input asp-for="@Model.UsersList[i].Selected" type="checkbox">
+                        </td>
+                        <td>
+                            @Model.UsersList[i].Email
+                        </td>
+                        <td>
+                            @Model.UsersList[i].Name
+                        </td>
+                        <td>
+                            @Model.UsersList[i].Type
+                        </td>
+                        <td>
+                            @if (Model.UsersList[i].Status)
+                            {
+                                <span class="badge-warning rounded">Blocked</span>
+                            }
+                            else
+                            {
+                                <span class="badge-success rounded">Unblocked</span>
+                            }
+                        </td>
+                        <td>
+                            <input type="hidden" asp-for="@Model.UsersList[i].id" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pt-1 pb-2">
+        <button class="btn btn-default btn-primary" type="submit" name="action" asp-action="Block">
+            Block
+        </button>
+        <button class="btn btn-default btn-primary" type="submit" name="action" asp-action="UnBlock">
+            Unblock
+        </button>
+        <button class="btn btn-default btn-primary" asp-action="Delete">
+            Delete
+        </button>
+        <button class="btn btn-default btn-primary" asp-action="Access">
+            Switch access
+        </button>
+        <button class="btn btn-default btn-primary" asp-action="Login">
+            Login
+        </button>
+    </div>
+</form>
+<script>
+    $('#checkbox').click(function () {
+        if ($(this).is(':checked')) {
+            $('input:checkbox').prop('checked', true);
+        } else {
+            $('input:checkbox').prop('checked', false);
+        }
+    });
+    $(function () {
+        $("#table").tablesorter();
+    });
+</script>
